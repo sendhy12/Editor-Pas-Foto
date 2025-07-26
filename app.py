@@ -1,9 +1,8 @@
 import streamlit as st
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw
 from io import BytesIO
 from rembg import remove
 import numpy as np
-from streamlit_drawable_canvas import st_canvas
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Editor Pas Foto Lengkap", layout="centered")
@@ -46,60 +45,95 @@ if uploaded_file:
     # Opsi grayscale
     grayscale = st.checkbox("Ubah ke Hitam Putih", value=False)
     
-    st.subheader("Atur Posisi Foto (Drag & Zoom)")
-    canvas_width, canvas_height = 500, 700
-    zoom = st.slider("Zoom", 0.5, 3.0, 1.0, 0.1)
+    st.subheader("Atur Posisi dan Ukuran Foto")
     
-    # Resize foto untuk preview canvas
-    img_zoomed = image.resize((int(image.width * zoom), int(image.height * zoom)))
+    # Preview area dengan slider controls
+    col1, col2 = st.columns([2, 1])
     
-    # Resize ke ukuran canvas untuk display
-    display_img = img_zoomed.copy()
-    if display_img.width > canvas_width or display_img.height > canvas_height:
-        display_img.thumbnail((canvas_width, canvas_height), Image.Resampling.LANCZOS)
-    
-    st.write("Geser foto di area canvas untuk mengatur posisi.")
-    
-    # Canvas untuk positioning (tanpa background image untuk menghindari error)
-    canvas_result = st_canvas(
-        fill_color="rgba(255, 165, 0, 0.1)",  # Transparant orange untuk area selection
-        stroke_width=2,
-        stroke_color="#FF6600",
-        background_color="#F0F0F0",
-        update_streamlit=True,
-        height=canvas_height,
-        width=canvas_width,
-        drawing_mode="rect",  # Mode rectangle selection
-        point_display_radius=0,
-        key="canvas"
-    )
-    
-    # Preview area
-    col1, col2 = st.columns(2)
-    with col1:
-        st.image(display_img, caption="Preview Foto", use_container_width=True)
-    
-    # Input manual untuk crop area (alternatif untuk canvas)
-    st.subheader("Atau Atur Crop Manual")
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        crop_x = st.number_input("X (kiri)", min_value=0, max_value=image.width, value=0)
     with col2:
-        crop_y = st.number_input("Y (atas)", min_value=0, max_value=image.height, value=0)
-    with col3:
-        crop_w = st.number_input("Lebar", min_value=1, max_value=image.width, value=min(image.width, target_w))
-    with col4:
-        crop_h = st.number_input("Tinggi", min_value=1, max_value=image.height, value=min(image.height, target_h))
+        st.write("**Kontrol Posisi & Zoom:**")
+        zoom = st.slider("Zoom", 0.3, 3.0, 1.0, 0.1)
+        
+        # Hitung ukuran gambar setelah zoom
+        zoomed_w = int(image.width * zoom)
+        zoomed_h = int(image.height * zoom)
+        
+        # Slider untuk posisi
+        max_x = max(0, zoomed_w - target_w)
+        max_y = max(0, zoomed_h - target_h)
+        
+        pos_x = st.slider("Posisi Horizontal", 0, max_x, max_x//2 if max_x > 0 else 0)
+        pos_y = st.slider("Posisi Vertikal", 0, max_y, max_y//2 if max_y > 0 else 0)
+        
+        st.write(f"**Target Size:** {target_w} x {target_h} px")
+        st.write(f"**Zoom Size:** {zoomed_w} x {zoomed_h} px")
+    
+    with col1:
+        # Buat preview dengan crop area
+        preview_img = image.resize((zoomed_w, zoomed_h), Image.Resampling.LANCZOS)
+        
+        # Buat gambar preview dengan frame crop
+        preview_canvas = Image.new("RGB", (target_w + 40, target_h + 40), (240, 240, 240))
+        
+        # Crop area dari gambar yang sudah di-zoom
+        crop_left = pos_x
+        crop_top = pos_y
+        crop_right = min(pos_x + target_w, zoomed_w)
+        crop_bottom = min(pos_y + target_h, zoomed_h)
+        
+        # Paste bagian yang akan di-crop ke preview canvas
+        if crop_right > crop_left and crop_bottom > crop_top:
+            cropped_preview = preview_img.crop((crop_left, crop_top, crop_right, crop_bottom))
+            preview_canvas.paste(cropped_preview, (20, 20))
+        
+        # Tambahkan border untuk menunjukkan area crop
+        draw = ImageDraw.Draw(preview_canvas)
+        draw.rectangle([20, 20, 20 + target_w, 20 + target_h], outline="red", width=2)
+        
+        st.image(preview_canvas, caption=f"Preview Crop Area ({size_option})", use_container_width=True)
+    
+    # Area untuk menampilkan koordinat crop
+    st.info(f"📍 **Crop Coordinates:** X={pos_x}, Y={pos_y}, Width={min(target_w, zoomed_w-pos_x)}, Height={min(target_h, zoomed_h-pos_y)}")
+    
+    # Manual adjustment (opsional)
+    with st.expander("🔧 Penyesuaian Manual (Opsional)"):
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            manual_x = st.number_input("X Manual", min_value=0, max_value=zoomed_w, value=pos_x)
+        with col2:
+            manual_y = st.number_input("Y Manual", min_value=0, max_value=zoomed_h, value=pos_y)
+        with col3:
+            manual_w = st.number_input("Width Manual", min_value=1, max_value=target_w, value=min(target_w, zoomed_w-pos_x))
+        with col4:
+            manual_h = st.number_input("Height Manual", min_value=1, max_value=target_h, value=min(target_h, zoomed_h-pos_y))
+        
+        use_manual = st.checkbox("Gunakan koordinat manual")
+        if use_manual:
+            pos_x, pos_y = manual_x, manual_y
     
     # Tombol proses
-    if st.button("Proses Foto"):
+    if st.button("🔄 Proses Pas Foto", type="primary"):
         try:
-            # Crop gambar berdasarkan input
-            cropped_img = image.crop((crop_x, crop_y, crop_x + crop_w, crop_y + crop_h))
-            
-            # Hapus background jika perlu
-            if bg_mode in ["Ganti Warna", "Ganti Gambar"]:
-                with st.spinner("Menghapus background..."):
+            with st.spinner("Memproses foto..."):
+                # Resize gambar sesuai zoom
+                zoomed_img = image.resize((zoomed_w, zoomed_h), Image.Resampling.LANCZOS)
+                
+                # Crop sesuai posisi yang dipilih
+                crop_right = min(pos_x + target_w, zoomed_w)
+                crop_bottom = min(pos_y + target_h, zoomed_h)
+                
+                if crop_right > pos_x and crop_bottom > pos_y:
+                    cropped_img = zoomed_img.crop((pos_x, pos_y, crop_right, crop_bottom))
+                else:
+                    st.error("❌ Area crop tidak valid!")
+                    st.stop()
+                
+                # Pastikan ukuran sesuai target (resize jika perlu)
+                if cropped_img.size != (target_w, target_h):
+                    cropped_img = cropped_img.resize((target_w, target_h), Image.Resampling.LANCZOS)
+                
+                # Proses background removal jika diperlukan
+                if bg_mode in ["Ganti Warna", "Ganti Gambar"]:
                     # Convert ke bytes untuk rembg
                     img_bytes = BytesIO()
                     cropped_img.save(img_bytes, format='PNG')
@@ -108,55 +142,72 @@ if uploaded_file:
                     # Remove background
                     result_bytes = remove(img_bytes)
                     img_no_bg = Image.open(BytesIO(result_bytes)).convert("RGBA")
-            else:
-                img_no_bg = cropped_img.convert("RGBA")
-            
-            # Resize ke ukuran pas foto dengan mempertahankan aspect ratio
-            img_no_bg.thumbnail((target_w, target_h), Image.Resampling.LANCZOS)
-            
-            # Buat canvas dengan ukuran target
-            final_canvas = Image.new("RGBA", (target_w, target_h), (255, 255, 255, 255))
-            
-            # Center image pada canvas
-            x_offset = (target_w - img_no_bg.width) // 2
-            y_offset = (target_h - img_no_bg.height) // 2
-            
-            # Grayscale jika dipilih
-            if grayscale:
-                img_no_bg = ImageOps.grayscale(img_no_bg).convert("RGBA")
-            
-            # Tambahkan background sesuai pilihan
-            if bg_mode == "Ganti Warna":
-                # Convert hex to RGBA
-                bg_rgb = tuple(int(bg_color[i:i+2], 16) for i in (1, 3, 5))
-                background = Image.new("RGBA", (target_w, target_h), bg_rgb + (255,))
-                background.paste(img_no_bg, (x_offset, y_offset), img_no_bg)
-                final_img = background
-            elif bg_mode == "Ganti Gambar" and bg_image:
-                background = bg_image.resize((target_w, target_h)).convert("RGBA")
-                background.paste(img_no_bg, (x_offset, y_offset), img_no_bg)
-                final_img = background
-            else:
-                final_canvas.paste(img_no_bg, (x_offset, y_offset), img_no_bg)
-                final_img = final_canvas
+                else:
+                    img_no_bg = cropped_img.convert("RGBA")
+                
+                # Apply grayscale jika dipilih
+                if grayscale:
+                    # Convert ke grayscale tapi tetap RGBA untuk transparency
+                    gray_img = ImageOps.grayscale(img_no_bg.convert("RGB"))
+                    img_no_bg = gray_img.convert("RGBA")
+                    if bg_mode in ["Ganti Warna", "Ganti Gambar"]:
+                        # Restore alpha channel untuk background removal
+                        original_alpha = Image.open(BytesIO(result_bytes)).split()[-1]
+                        img_no_bg.putalpha(original_alpha)
+                
+                # Buat background sesuai pilihan
+                if bg_mode == "Ganti Warna":
+                    # Convert hex to RGB
+                    bg_rgb = tuple(int(bg_color[i:i+2], 16) for i in (1, 3, 5))
+                    background = Image.new("RGB", (target_w, target_h), bg_rgb)
+                    background = background.convert("RGBA")
+                    final_img = Image.alpha_composite(background, img_no_bg)
+                elif bg_mode == "Ganti Gambar" and bg_image:
+                    background = bg_image.resize((target_w, target_h)).convert("RGBA")
+                    final_img = Image.alpha_composite(background, img_no_bg)
+                else:
+                    final_img = img_no_bg
+                
+                # Convert ke RGB untuk output final
+                final_img = final_img.convert("RGB")
             
             # Tampilkan hasil
-            st.success("✅ Foto berhasil diproses!")
-            st.image(final_img, caption=f"Hasil Pas Foto {size_option} ({target_w}x{target_h}px)", use_container_width=False)
+            st.success("✅ Pas foto berhasil dibuat!")
             
-            # Simpan & unduh
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                st.image(final_img, caption=f"Hasil Pas Foto {size_option} ({target_w}×{target_h}px)")
+            
+            with col2:
+                st.write("**📊 Info Hasil:**")
+                st.write(f"• Ukuran: {size_option}")
+                st.write(f"• Dimensi: {target_w}×{target_h}px")
+                st.write(f"• Background: {bg_mode}")
+                st.write(f"• Grayscale: {'Ya' if grayscale else 'Tidak'}")
+            
+            # Tombol download
             buf = BytesIO()
-            final_img.convert("RGB").save(buf, format="JPEG", quality=95)
+            final_img.save(buf, format="JPEG", quality=95)
             st.download_button(
-                label="📥 Unduh Pas Foto",
+                label="📥 Download Pas Foto",
                 data=buf.getvalue(),
-                file_name=f"pas_foto_{size_option}.jpg",
-                mime="image/jpeg"
+                file_name=f"pas_foto_{size_option}_{target_w}x{target_h}.jpg",
+                mime="image/jpeg",
+                type="primary"
             )
             
         except Exception as e:
             st.error(f"❌ Terjadi kesalahan: {str(e)}")
-            st.info("💡 Tips: Pastikan area crop tidak melebihi ukuran gambar asli")
+            st.info("💡 Coba adjust posisi dan zoom, atau upload foto dengan format yang berbeda")
 
 else:
-    st.info("📤 Unggah foto terlebih dahulu untuk memulai.")
+    st.info("📤 Silakan upload foto terlebih dahulu untuk memulai")
+    st.markdown("""
+    ### 🔧 Fitur Editor:
+    - ✅ Crop foto dengan preview real-time
+    - ✅ Multiple ukuran pas foto standar
+    - ✅ Background removal otomatis
+    - ✅ Ganti background (warna/gambar)
+    - ✅ Konversi ke hitam-putih
+    - ✅ Zoom dan positioning yang presisi
+    """)
