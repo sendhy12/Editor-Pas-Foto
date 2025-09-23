@@ -5,22 +5,22 @@ from io import BytesIO
 from rembg import remove
 import base64
 
-# Page configuration
+# Konfigurasi halaman
 st.set_page_config(
-    page_title="Photo Editor Pro",
+    page_title="Editor Foto",
     page_icon="📸",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for modern UI
+# CSS khusus untuk tampilan modern
 def load_css():
     st.markdown("""
     <style>
-    /* Import modern fonts */
+    /* Import font modern */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* Root variables for consistent theming */
+    /* Variabel root untuk tema konsisten */
     :root {
         --primary-color: #6366f1;
         --primary-hover: #5855eb;
@@ -38,18 +38,18 @@ def load_css():
         --radius-sm: 8px;
     }
     
-    /* Main app styling */
+    /* Styling aplikasi utama */
     .main {
         padding: 2rem 3rem;
         font-family: 'Inter', sans-serif;
     }
     
-    /* Hide Streamlit default elements */
+    /* Sembunyikan elemen default Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Custom header */
+    /* Header khusus */
     .app-header {
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
         padding: 2rem 3rem;
@@ -75,7 +75,7 @@ def load_css():
         font-weight: 400;
     }
     
-    /* Card components */
+    /* Komponen kartu */
     .card {
         background: var(--background);
         border-radius: var(--radius);
@@ -103,7 +103,7 @@ def load_css():
         gap: 0.5rem;
     }
     
-    /* Upload area styling */
+    /* Styling area upload */
     .upload-area {
         border: 2px dashed var(--border-color);
         border-radius: var(--radius);
@@ -119,7 +119,7 @@ def load_css():
         background: rgba(99, 102, 241, 0.05);
     }
     
-    /* Button styling */
+    /* Styling tombol */
     .stButton > button {
         background: var(--primary-color) !important;
         color: white !important;
@@ -138,12 +138,12 @@ def load_css():
         box-shadow: var(--shadow-lg) !important;
     }
     
-    /* Success button variant */
+    /* Varian tombol sukses */
     .success-button > button {
         background: var(--accent-color) !important;
     }
     
-    /* Download button styling */
+    /* Styling tombol download */
     .stDownloadButton > button {
         background: var(--accent-color) !important;
         color: white !important;
@@ -163,7 +163,7 @@ def load_css():
         box-shadow: var(--shadow-lg) !important;
     }
     
-    /* Form controls styling */
+    /* Styling kontrol form */
     .stSelectbox > div > div {
         background: var(--background) !important;
         border: 2px solid var(--border-color) !important;
@@ -182,7 +182,7 @@ def load_css():
         background: var(--primary-color) !important;
     }
     
-    /* Image display styling */
+    /* Styling tampilan gambar */
     .image-container {
         border-radius: var(--radius);
         overflow: hidden;
@@ -190,7 +190,7 @@ def load_css():
         margin: 1rem 0;
     }
     
-    /* Info sections */
+    /* Bagian info */
     .info-section {
         background: var(--surface);
         padding: 1.5rem;
@@ -210,7 +210,7 @@ def load_css():
         line-height: 1.6;
     }
     
-    /* Stats cards */
+    /* Kartu statistik */
     .stats-card {
         background: var(--background);
         padding: 1.5rem;
@@ -233,7 +233,7 @@ def load_css():
         font-weight: 500;
     }
     
-    /* Feature grid */
+    /* Grid fitur */
     .feature-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -273,7 +273,7 @@ def load_css():
         line-height: 1.5;
     }
     
-    /* Progress indicator */
+    /* Indikator proses */
     .progress-container {
         background: var(--surface);
         padding: 1.5rem;
@@ -282,7 +282,7 @@ def load_css():
         text-align: center;
     }
     
-    /* Responsive design */
+    /* Desain responsif */
     @media (max-width: 768px) {
         .main {
             padding: 1rem;
@@ -302,7 +302,7 @@ def load_css():
         }
     }
     
-    /* Custom alerts */
+    /* Peringatan khusus */
     .stAlert {
         border-radius: var(--radius-sm) !important;
         border: none !important;
@@ -319,15 +319,15 @@ def load_css():
     </style>
     """, unsafe_allow_html=True)
 
-# Custom components
+# Komponen khusus
 def create_header():
     st.markdown("""
     <div class="app-header">
         <h1 class="app-title">
-            📸 Photo Editor Pro
+            📸 Editor Foto Paspor Pro
         </h1>
         <p class="app-subtitle">
-            Professional passport photo editor with AI background removal
+            Editor foto profesional dengan AI untuk menghapus latar belakang
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -348,24 +348,24 @@ def create_feature_grid():
     st.markdown("""
     <div class="feature-grid">
         <div class="feature-item">
-            <div class="feature-icon">📐</div>
-            <div class="feature-title">Standard Sizes</div>
-            <div class="feature-description">Multiple passport photo sizes with 300 DPI quality</div>
+            <div class="feature-icon">📏</div>
+            <div class="feature-title">Ukuran Standar</div>
+            <div class="feature-description">Berbagai ukuran foto dengan kualitas 300 DPI</div>
         </div>
         <div class="feature-item">
             <div class="feature-icon">🎨</div>
-            <div class="feature-title">Background Removal</div>
-            <div class="feature-description">AI-powered background removal with custom colors</div>
+            <div class="feature-title">Hapus Latar Belakang</div>
+            <div class="feature-description">Penghapusan latar belakang otomatis dengan AI dan pilihan warna custom</div>
         </div>
         <div class="feature-item">
             <div class="feature-icon">⚫</div>
-            <div class="feature-title">B&W Conversion</div>
-            <div class="feature-description">Professional grayscale conversion option</div>
+            <div class="feature-title">Konversi Hitam Putih</div>
+            <div class="feature-description">Opsi konversi ke hitam putih yang profesional</div>
         </div>
         <div class="feature-item">
             <div class="feature-icon">🎯</div>
-            <div class="feature-title">Smart Positioning</div>
-            <div class="feature-description">Intelligent cropping with manual adjustments</div>
+            <div class="feature-title">Posisi Pintar</div>
+            <div class="feature-description">Pemotongan otomatis dengan penyesuaian manual</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -373,10 +373,10 @@ def create_feature_grid():
 # Load CSS
 load_css()
 
-# Create header
+# Buat header
 create_header()
 
-# Photo sizes configuration
+# Konfigurasi ukuran foto
 photo_sizes = {
     "2x3 cm": (236, 354),
     "3x4 cm": (354, 472),
@@ -385,94 +385,94 @@ photo_sizes = {
     "6x9 cm": (709, 1063)
 }
 
-# Main application
+# Aplikasi utama
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    # File upload section
+    # Bagian upload file
     st.markdown("""
     <div class="card">
         <div class="card-header">
-            📁 Upload Your Photo
+            📁 Unggah Foto Anda
         </div>
     </div>
     """, unsafe_allow_html=True)
     
     uploaded_file = st.file_uploader(
-        "Choose your photo",
+        "Pilih foto Anda",
         type=["jpg", "jpeg", "png"],
-        help="Upload a clear photo with good lighting for best results"
+        help="Unggah foto yang jelas dengan pencahayaan baik untuk hasil terbaik"
     )
 
 if uploaded_file:
     image = Image.open(uploaded_file).convert("RGB")
     
-    # Display original image
+    # Tampilkan gambar asli
     with col1:
         st.markdown("""
         <div class="card">
             <div class="card-header">
-                🖼️ Original Photo
+                🖼️ Foto Asli
             </div>
         </div>
         """, unsafe_allow_html=True)
         
         st.image(image, use_container_width=True)
     
-    # Settings panel
+    # Panel pengaturan
     with col2:
         st.markdown("""
         <div class="card">
             <div class="card-header">
-                ⚙️ Photo Settings
+                ⚙️ Pengaturan Foto
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        # Size selection
-        st.subheader("📏 Size Selection")
+        # Pemilihan ukuran
+        st.subheader("📏 Pilih Ukuran")
         size_option = st.selectbox(
-            "Choose passport photo size:",
+            "Pilih ukuran foto paspor:",
             list(photo_sizes.keys()),
-            help="Standard passport photo dimensions at 300 DPI"
+            help="Ukuran foto paspor standar dengan resolusi 300 DPI"
         )
         target_w, target_h = photo_sizes[size_option]
         
-        # Background options
-        st.subheader("🎨 Background Options")
+        # Opsi latar belakang
+        st.subheader("🎨 Pilihan Latar Belakang")
         bg_option = st.radio(
-            "Background type:",
+            "Jenis latar belakang:",
             [
-                "Keep Original", 
-                "Remove + Solid Color", 
-                "Remove + Transparent"
+                "Pertahankan Asli", 
+                "Hapus + Warna Solid", 
+                "Hapus + Transparan"
             ]
         )
         
         bg_color = "#FFFFFF"
-        if bg_option == "Remove + Solid Color":
-            bg_color = st.color_picker("Background color:", "#FFFFFF")
+        if bg_option == "Hapus + Warna Solid":
+            bg_color = st.color_picker("Warna latar belakang:", "#FFFFFF")
         
-        # Additional options
-        st.subheader("🎛️ Additional Options")
-        grayscale = st.checkbox("Convert to B&W", value=False)
+        # Opsi tambahan
+        st.subheader("🎛️ Opsi Tambahan")
+        grayscale = st.checkbox("Ubah ke Hitam Putih", value=False)
         
-        # Position adjustments
-        st.subheader("📍 Position Adjustment")
-        x_offset = st.slider("Horizontal position", -200, 200, 0, help="Move subject left/right")
-        y_offset = st.slider("Vertical position", -200, 200, 0, help="Move subject up/down")
+        # Penyesuaian posisi
+        st.subheader("📐 Penyesuaian Posisi")
+        x_offset = st.slider("Posisi horizontal", -200, 200, 0, help="Geser subjek ke kiri/kanan")
+        y_offset = st.slider("Posisi vertikal", -200, 200, 0, help="Geser subjek ke atas/bawah")
         
-        # Process button
+        # Tombol proses
         st.markdown("<br>", unsafe_allow_html=True)
-        process_button = st.button("🚀 Process Photo", type="primary", use_container_width=True)
+        process_button = st.button("🚀 Proses Foto", type="primary", use_container_width=True)
 
-    # Processing and results
+    # Pemrosesan dan hasil
     if process_button:
-        with st.spinner("🔄 Processing your photo..."):
+        with st.spinner("🔄 Sedang memproses foto Anda..."):
             try:
-                # Background removal
-                if bg_option.startswith("Remove"):
-                    st.info("🤖 AI Background Removal in progress...")
+                # Penghapusan latar belakang
+                if bg_option.startswith("Hapus"):
+                    st.info("🤖 Penghapusan latar belakang AI sedang berjalan...")
                     
                     img_bytes = BytesIO()
                     image.save(img_bytes, format='PNG')
@@ -483,10 +483,10 @@ if uploaded_file:
                 else:
                     processed_image = image.convert("RGBA")
                 
-                # Image processing
+                # Pemrosesan gambar
                 img_np = np.array(processed_image)
                 
-                # Calculate aspect ratio and crop
+                # Hitung rasio aspek dan potong
                 original_h, original_w = processed_image.size[1], processed_image.size[0]
                 aspect_ratio = original_w / original_h
                 target_aspect = target_w / target_h
@@ -502,22 +502,22 @@ if uploaded_file:
                     end_y = start_y + new_height
                     cropped = img_np[start_y:end_y, :]
                 
-                # Resize
+                # Ubah ukuran
                 result = Image.fromarray(cropped).resize((target_w, target_h), Image.Resampling.LANCZOS)
                 
-                # Background processing
-                if bg_option == "Remove + Solid Color":
+                # Pemrosesan latar belakang
+                if bg_option == "Hapus + Warna Solid":
                     bg_rgb = tuple(int(bg_color[i:i+2], 16) for i in (1, 3, 5))
                     background = Image.new("RGB", (target_w, target_h), bg_rgb)
                     background = background.convert("RGBA")
                     result = Image.alpha_composite(background, result.convert("RGBA"))
                     result = result.convert("RGB")
-                elif bg_option == "Remove + Transparent":
+                elif bg_option == "Hapus + Transparan":
                     result = result.convert("RGBA")
                 else:
                     result = result.convert("RGB")
                 
-                # Grayscale conversion
+                # Konversi hitam putih
                 if grayscale:
                     if result.mode == "RGBA":
                         alpha = result.split()[-1]
@@ -528,8 +528,8 @@ if uploaded_file:
                     else:
                         result = ImageOps.grayscale(result)
                 
-                # Display results
-                st.success("✅ Photo processed successfully!")
+                # Tampilkan hasil
+                st.success("✅ Foto berhasil diproses!")
                 
                 col_result1, col_result2 = st.columns([3, 1])
                 
@@ -537,48 +537,48 @@ if uploaded_file:
                     st.markdown("""
                     <div class="card">
                         <div class="card-header">
-                            🎉 Final Result
+                            🎉 Hasil Akhir
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    st.image(result, caption=f"Passport Photo {size_option}")
+                    st.image(result, caption=f"Foto Paspor {size_option}")
                 
                 with col_result2:
-                    # Photo info
+                    # Info foto
                     st.markdown(f"""
                     <div class="stats-card">
                         <div class="stats-number">{size_option}</div>
-                        <div class="stats-label">Size</div>
+                        <div class="stats-label">Ukuran</div>
                     </div>
                     
                     <div class="stats-card" style="margin-top: 1rem;">
                         <div class="stats-number">{target_w}×{target_h}</div>
-                        <div class="stats-label">Pixels</div>
+                        <div class="stats-label">Piksel</div>
                     </div>
                     
                     <div class="info-section" style="margin-top: 1rem;">
-                        <div class="info-title">Processing Details</div>
+                        <div class="info-title">Detail Pemrosesan</div>
                         <div class="info-text">
-                            <strong>Background:</strong> {bg_option}<br>
-                            <strong>Grayscale:</strong> {'Yes' if grayscale else 'No'}<br>
-                            <strong>Position:</strong> X={x_offset}, Y={y_offset}
+                            <strong>Latar Belakang:</strong> {bg_option}<br>
+                            <strong>Hitam Putih:</strong> {'Ya' if grayscale else 'Tidak'}<br>
+                            <strong>Posisi:</strong> X={x_offset}, Y={y_offset}
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
                 
-                # Download section
+                # Bagian download
                 st.markdown("""
                 <div class="card">
                     <div class="card-header">
-                        💾 Download Your Photo
+                        💾 Unduh Foto Anda
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
                 
                 buf = BytesIO()
                 
-                if bg_option == "Remove + Transparent":
+                if bg_option == "Hapus + Transparan":
                     result.save(buf, format="PNG")
                     file_ext = "png"
                     mime_type = "image/png"
@@ -590,35 +590,35 @@ if uploaded_file:
                     mime_type = "image/jpeg"
                 
                 st.download_button(
-                    label=f"📥 Download Passport Photo (.{file_ext})",
+                    label=f"📥 Unduh Foto Paspor (.{file_ext})",
                     data=buf.getvalue(),
-                    file_name=f"passport_photo_{size_option.replace(' ', '_')}_{target_w}x{target_h}.{file_ext}",
+                    file_name=f"foto_paspor_{size_option.replace(' ', '_')}_{target_w}x{target_h}.{file_ext}",
                     mime=mime_type
                 )
                 
             except Exception as e:
-                st.error(f"❌ Processing failed: {str(e)}")
-                st.info("💡 **Tip:** Ensure your photo has a clear subject for optimal background removal")
+                st.error(f"❌ Pemrosesan gagal: {str(e)}")
+                st.info("💡 **Tips:** Pastikan foto Anda memiliki subjek yang jelas untuk hasil penghapusan latar belakang yang optimal")
 
 else:
-    # Welcome screen
+    # Layar selamat datang
     st.markdown("""
     <div class="card">
         <div class="card-header">
-            👋 Welcome to Photo Editor Pro
+            👋 Selamat Datang di Editor Foto Paspor Pro
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    st.info("📤 **Get Started:** Upload your photo above to begin creating professional passport photos")
+    st.info("📤 **Mulai Sekarang:** Unggah foto Anda di atas untuk mulai membuat foto paspor profesional")
     
     create_feature_grid()
     
-    # Usage tips
+    # Tips penggunaan
     st.markdown("""
     <div class="card">
         <div class="card-header">
-            💡 Pro Tips for Best Results
+            💡 Tips Pro untuk Hasil Terbaik
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -628,11 +628,11 @@ else:
     with tips_col1:
         st.markdown("""
         <div class="info-section">
-            <div class="info-title">📷 Photo Quality</div>
+            <div class="info-title">📷 Kualitas Foto</div>
             <div class="info-text">
-                • Use well-lit, high-resolution photos<br>
-                • Ensure subject is clearly visible<br>
-                • Avoid shadows and reflections
+                • Gunakan foto dengan pencahayaan baik dan resolusi tinggi<br>
+                • Pastikan subjek terlihat jelas<br>
+                • Hindari bayangan dan pantulan cahaya
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -640,11 +640,11 @@ else:
     with tips_col2:
         st.markdown("""
         <div class="info-section">
-            <div class="info-title">🎯 Positioning</div>
+            <div class="info-title">🎯 Posisi</div>
             <div class="info-text">
-                • Center the subject in the frame<br>
-                • Use position sliders for fine-tuning<br>
-                • Check different background colors
+                • Pusatkan subjek di dalam bingkai<br>
+                • Gunakan slider posisi untuk penyesuaian halus<br>
+                • Coba berbagai warna latar belakang
             </div>
         </div>
         """, unsafe_allow_html=True)
