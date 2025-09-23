@@ -324,7 +324,7 @@ def create_header():
     st.markdown("""
     <div class="app-header">
         <h1 class="app-title">
-            📸 Editor Foto Paspor Pro
+            📸 Editor Foto  Pro
         </h1>
         <p class="app-subtitle">
             Editor foto profesional dengan AI untuk menghapus latar belakang
@@ -432,9 +432,9 @@ if uploaded_file:
         # Pemilihan ukuran
         st.subheader("📏 Pilih Ukuran")
         size_option = st.selectbox(
-            "Pilih ukuran foto paspor:",
+            "Pilih ukuran foto :",
             list(photo_sizes.keys()),
-            help="Ukuran foto paspor standar dengan resolusi 300 DPI"
+            help="Ukuran foto  standar dengan resolusi 300 DPI"
         )
         target_w, target_h = photo_sizes[size_option]
         
@@ -542,7 +542,7 @@ if uploaded_file:
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    st.image(result, caption=f"Foto Paspor {size_option}")
+                    st.image(result, caption=f"Foto  {size_option}")
                 
                 with col_result2:
                     # Info foto
@@ -590,9 +590,9 @@ if uploaded_file:
                     mime_type = "image/jpeg"
                 
                 st.download_button(
-                    label=f"📥 Unduh Foto Paspor (.{file_ext})",
+                    label=f"📥 Unduh Foto  (.{file_ext})",
                     data=buf.getvalue(),
-                    file_name=f"foto_paspor_{size_option.replace(' ', '_')}_{target_w}x{target_h}.{file_ext}",
+                    file_name=f"foto__{size_option.replace(' ', '_')}_{target_w}x{target_h}.{file_ext}",
                     mime=mime_type
                 )
                 
@@ -605,12 +605,12 @@ else:
     st.markdown("""
     <div class="card">
         <div class="card-header">
-            👋 Selamat Datang di Editor Foto Paspor Pro
+            👋 Selamat Datang di Editor Foto  Pro
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    st.info("📤 **Mulai Sekarang:** Unggah foto Anda di atas untuk mulai membuat foto paspor profesional")
+    st.info("📤 **Mulai Sekarang:** Unggah foto Anda di atas untuk mulai membuat foto  profesional")
     
     create_feature_grid()
     
@@ -648,3 +648,4 @@ else:
             </div>
         </div>
         """, unsafe_allow_html=True)
+
