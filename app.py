@@ -122,7 +122,7 @@ if uploaded_file:
                 if grayscale:
                     result = ImageOps.grayscale(result).convert("RGB")
                     enhancer = ImageEnhance.Contrast(result)
-                    result = enhancer.enhance(1.2)  # 1.0 = normal, >1 = lebih kontras
+                    result = enhancer.enhance(1.5)  # 1.0 = normal, >1 = lebih kontras
 
                 # Tampilkan hasil
                 st.success("✅ Foto berhasil diproses!")
@@ -149,6 +149,7 @@ if uploaded_file:
 
 else:
     st.info("📤 Unggah foto untuk mulai mengedit.")
+
 
 
 
