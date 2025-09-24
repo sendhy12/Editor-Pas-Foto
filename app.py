@@ -121,16 +121,8 @@ if uploaded_file:
                 # Konversi grayscale (full hitam putih natural)
                 if grayscale:
                     result = ImageOps.grayscale(result).convert("RGB")
-                
-                    # Slider untuk atur kecerahan & kontras
-                    brightness_val = st.slider("Kecerahan", 0.5, 2.0, 1.0, 0.1)
-                    contrast_val = st.slider("Kontras", 0.5, 2.0, 1.0, 0.1)
-                
-                    # Terapkan brightness
-                    result = ImageEnhance.Brightness(result).enhance(brightness_val)
-                    # Terapkan contrast
-                    result = ImageEnhance.Contrast(result).enhance(contrast_val)
-
+                    enhancer = ImageEnhance.Contrast(result)
+                    result = enhancer.enhance(1.2)  # 1.0 = normal, >1 = lebih kontras
 
                 # Tampilkan hasil
                 st.success("✅ Foto berhasil diproses!")
@@ -157,6 +149,7 @@ if uploaded_file:
 
 else:
     st.info("📤 Unggah foto untuk mulai mengedit.")
+
 
 
 
