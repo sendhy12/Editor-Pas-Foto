@@ -3,8 +3,6 @@ from PIL import Image, ImageOps
 import numpy as np
 from io import BytesIO
 from rembg import remove
-from PIL import ImageEnhance
-
 
 # =====================
 # Konfigurasi halaman
@@ -121,8 +119,6 @@ if uploaded_file:
                 # Konversi grayscale (full hitam putih natural)
                 if grayscale:
                     result = ImageOps.grayscale(result).convert("RGB")
-                    enhancer = ImageEnhance.Contrast(result)
-                    result = enhancer.enhance(1.5)  # 1.0 = normal, >1 = lebih kontras
 
                 # Tampilkan hasil
                 st.success("✅ Foto berhasil diproses!")
@@ -149,8 +145,3 @@ if uploaded_file:
 
 else:
     st.info("📤 Unggah foto untuk mulai mengedit.")
-
-
-
-
-
