@@ -3,6 +3,8 @@ from PIL import Image, ImageOps
 import numpy as np
 from io import BytesIO
 from rembg import remove
+from PIL import ImageEnhance
+
 
 # =====================
 # Konfigurasi halaman
@@ -147,4 +149,5 @@ if uploaded_file:
 
 else:
     st.info("📤 Unggah foto untuk mulai mengedit.")
+
 
