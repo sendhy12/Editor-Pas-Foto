@@ -1,5 +1,5 @@
 import streamlit as st
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageEnhance
 import numpy as np
 from io import BytesIO
 from rembg import remove
@@ -78,7 +78,7 @@ if uploaded_file:
         with st.spinner("🔄 Memproses foto..."):
             try:
                 # Hapus background jika dipilih
-                if bg_option.startswith("Hapus"):
+                if bg_option.startswith("Hapus") or grayscale:
                     img_bytes = BytesIO()
                     image.save(img_bytes, format='PNG')
                     img_bytes = img_bytes.getvalue()
@@ -105,18 +105,25 @@ if uploaded_file:
 
                 result = Image.fromarray(cropped).resize((target_w, target_h), Image.Resampling.LANCZOS)
 
-                # Tambah background
-                if bg_option == "Hapus + Warna Solid":
-                    bg_rgb = tuple(int(bg_color[i:i+2], 16) for i in (1, 3, 5))
+                # Proses background
+                if grayscale:
+                    # Override → selalu pakai background hijau #09F100 sebelum grayscale
+                    bg_rgb = (9, 241, 0)  # #09F100
                     background = Image.new("RGB", (target_w, target_h), bg_rgb).convert("RGBA")
                     result = Image.alpha_composite(background, result.convert("RGBA"))
                     result = result.convert("RGB")
-                elif bg_option == "Hapus + Transparan":
-                    result = result.convert("RGBA")
                 else:
-                    result = result.convert("RGB")
+                    if bg_option == "Hapus + Warna Solid":
+                        bg_rgb = tuple(int(bg_color[i:i+2], 16) for i in (1, 3, 5))
+                        background = Image.new("RGB", (target_w, target_h), bg_rgb).convert("RGBA")
+                        result = Image.alpha_composite(background, result.convert("RGBA"))
+                        result = result.convert("RGB")
+                    elif bg_option == "Hapus + Transparan":
+                        result = result.convert("RGBA")
+                    else:
+                        result = result.convert("RGB")
 
-                # Konversi grayscale (full hitam putih natural)
+                # Konversi grayscale (setelah background hijau diganti)
                 if grayscale:
                     result = ImageOps.grayscale(result).convert("RGB")
 
@@ -126,7 +133,7 @@ if uploaded_file:
 
                 # Download
                 buf = BytesIO()
-                if bg_option == "Hapus + Transparan":
+                if bg_option == "Hapus + Transparan" and not grayscale:
                     result.save(buf, format="PNG")
                     file_ext, mime_type = "png", "image/png"
                 else:
